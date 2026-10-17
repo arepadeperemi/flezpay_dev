@@ -1,0 +1,260 @@
+/* 
+   Auth Design System for FlezPay Enterprise
+   Shared across login.html and signup.html
+*/
+
+:root {
+    --primary: #cfff45;
+    --bg-dark: hsl(220, 15%, 8%);
+    --bg-card: hsl(220, 15%, 14%);
+}
+
+/* Glassmorphism & Inputs */
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(207, 255, 69, 0.15);
+}
+
+.input-field.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+}
+
+/* Decorative Orbs */
+.orb-green  { background: radial-gradient(circle, rgba(207, 255, 69, 0.18) 0%, transparent 70%); }
+.orb-purple { background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%); }
+.orb-blue   { background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%); }
+.orb-1      { background: radial-gradient(circle, rgba(207, 255, 69, 0.2) 0%, transparent 70%); }
+.orb-2      { background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%); }
+
+/* Animations */
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: floatUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.fade-up-delay { animation: floatUp 0.6s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes successPop {
+    0%   { transform: scale(.5); opacity: 0; }
+    70%  { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.pop { animation: successPop .5s cubic-bezier(.22, 1, .36, 1) forwards; }
+
+.btn-glow:hover, .btn-primary-glow:hover {
+    box-shadow: 0 8px 25px rgba(74, 222, 128, 0.25);
+}
+
+/* Signup Specific: Step Panels */
+.step-panel {
+    transition: transform .42s cubic-bezier(.22, 1, .36, 1), opacity .42s ease;
+    will-change: transform, opacity;
+}
+.step-panel.hidden-left  { transform: translateX(-50px); opacity: 0; pointer-events: none; display: none; }
+.step-panel.hidden-right { transform: translateX(50px);  opacity: 0; pointer-events: none; display: none; }
+.step-panel.active       { transform: translateX(0);      opacity: 1; pointer-events: auto; display: block; }
+.step-panel.exiting-left  { transform: translateX(-50px); opacity: 0; pointer-events: none; }
+.step-panel.exiting-right { transform: translateX(50px);  opacity: 0; pointer-events: none; }
+
+/* Progress Indicator */
+.step-dot { transition: background .3s, transform .3s; }
+.step-dot.done    { background: var(--primary); transform: scale(1); }
+.step-dot.active  { background: var(--primary); transform: scale(1.2); box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.2); }
+.step-dot.pending { background: rgba(255, 255, 255, 0.12); }
+
+.strength-bar { transition: width .3s ease, background-color .3s; }
+
+/* Toast System - Redesigned (Sharp Blade Look) */
+#toast-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.toast {
+    pointer-events: auto;
+    min-width: 320px;
+    max-width: 420px;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px);
+    border: none;
+    border-right: 4px solid var(--toast-color, var(--primary));
+    padding: 18px 24px;
+    border-radius: 0; /* Sharp corners as requested */
+    box-shadow: -10px 10px 40px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    transition: all 0.3s ease;
+    color: white; /* Ensure text/icons stay light on dark background */
+}
+
+.toast.error   { --toast-color: #ef4444; }
+.toast.success { --toast-color: #22c55e; }
+.toast.info    { --toast-color: #3b82f6; }
+
+.toast.shake  { animation: shake 0.5s cubic-bezier(.36, .07, .19, .97) both; }
+.toast.hiding { animation: toastOut 0.3s ease forwards; }
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.copy-btn {
+    padding: 8px;
+    border-radius: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.copy-btn:hover  { background: rgba(255, 255, 255, 0.08); border-color: var(--toast-color); }
+.copy-btn:active { transform: scale(0.9); }
+
+/* Light Mode Overrides */
+html:not(.dark) .glass-card {
+    background: rgba(255, 255, 255, 1);
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+html:not(.dark) .input-field {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+html:not(.dark) .input-field::placeholder { color: #94a3b8; }
+html:not(.dark) select.input-field option { background: #ffffff; color: #0f172a; }
+html:not(.dark) .btn-glow:hover { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05); }
+
+/* ==========================================================================
+   Light Mode & White Surface Accessibility Contrast
+   Ensures WCAG AAA (7:1+) contrast for text, links & icons on light surfaces
+   while preserving signature brand lime #cfff45 in dark mode.
+   ========================================================================== */
+
+/* 1. Text & Links in Light Theme or on White / Light Surfaces */
+html:not(.dark) .text-primary,
+html.light .text-primary,
+html[data-theme="light"] .text-primary,
+html:not(.dark) a.text-primary,
+html.light a.text-primary,
+html[data-theme="light"] a.text-primary,
+html:not(.dark) [class*="text-[#cfff45]"],
+html.light [class*="text-[#cfff45]"],
+html[data-theme="light"] [class*="text-[#cfff45]"] {
+    color: #29594b !important;
+}
+
+/* 2. Hover states for links and interactive elements */
+html:not(.dark) .hover\:text-primary:hover,
+html.light .hover\:text-primary:hover,
+html[data-theme="light"] .hover\:text-primary:hover,
+html:not(.dark) a.text-primary:hover,
+html.light a.text-primary:hover,
+html[data-theme="light"] a.text-primary:hover,
+html:not(.dark) a:hover.text-primary,
+html.light a:hover.text-primary,
+html[data-theme="light"] a:hover.text-primary {
+    color: #19352d !important;
+}
+
+/* 3. Lucide and SVG icons in Light Theme */
+html:not(.dark) svg.text-primary,
+html.light svg.text-primary,
+html[data-theme="light"] svg.text-primary,
+html:not(.dark) [data-lucide].text-primary,
+html.light [data-lucide].text-primary,
+html[data-theme="light"] [data-lucide].text-primary {
+    color: #29594b !important;
+    stroke: #29594b !important;
+}
+
+/* 4. Borders in Light Theme */
+html:not(.dark) .border-primary,
+html.light .border-primary,
+html[data-theme="light"] .border-primary {
+    border-color: #29594b !important;
+}
+
+/* 5. Inputs & Focus Rings in Light Theme */
+html:not(.dark) .input-field:focus,
+html.light .input-field:focus,
+html[data-theme="light"] .input-field:focus {
+    border-color: #29594b !important;
+    box-shadow: 0 0 0 3px rgba(41, 89, 75, 0.15) !important;
+}
+
+html:not(.dark) .pinput-box:focus,
+html.light .pinput-box:focus,
+html[data-theme="light"] .pinput-box:focus {
+    border-color: #29594b !important;
+    box-shadow: 0 0 0 4px rgba(41, 89, 75, 0.15) !important;
+}
+
+/* 6. Step dots in Light Theme */
+html:not(.dark) .step-dot.done,
+html.light .step-dot.done,
+html[data-theme="light"] .step-dot.done,
+html:not(.dark) .step-dot.active,
+html.light .step-dot.active,
+html[data-theme="light"] .step-dot.active {
+    background: #29594b !important;
+}
+
+/* 7. Dedicated Auth Text Links */
+.auth-text-link {
+    color: #29594b;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+.auth-text-link:hover {
+    color: #19352d;
+    text-decoration: underline;
+}
+html.dark .auth-text-link {
+    color: #cfff45 !important;
+}
+html.dark .auth-text-link:hover {
+    color: #b8ee30 !important;
+}
+

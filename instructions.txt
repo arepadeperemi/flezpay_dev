@@ -1,0 +1,15 @@
+
+#Run lines after update
+
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+sudo systemctl restart daphne
+sudo systemctl restart redis-server
+sudo systemctl reload apache2
+
+sudo systemctl daemon-reload
+sudo systemctl restart flezpay-daphne
+sudo systemctl reload nginx
+
+systemctl restart celery-worker
+systemctl restart celery-beat

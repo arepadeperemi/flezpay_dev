@@ -1,0 +1,105 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# FlezPay — Git Ignore Rules for Public Release & Product Validation
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── Secrets and Environment Variables ───────────────────────────────────────
+.env
+.env.*
+.env.local
+.env.production
+!.env.example
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+
+# ── Private Keys & Service Account Credentials ──────────────────────────────
+keys/
+*.json.key
+*firebase-adminsdk*.json
+
+# ── Database & State Files ──────────────────────────────────────────────────
+*.sqlite3
+*.sqlite
+*.db
+backup.json
+*.sql
+*.dump
+celerybeat-schedule
+celerybeat.pid
+
+# ── Media & KYC Verification Uploads (Customer Documents) ───────────────────
+media/*
+!media/.gitkeep
+media/docs/user/verification/
+media/upload/docs/user/verification/
+
+# ── Python / Django ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ── Node & Frontend Dependencies ────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── System Files ────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ── Local Archives & Backup Files ───────────────────────────────────────────
+*.zip
+*.tar.gz
+*.rar
+*.bak
+zip_command.txt
+update_*.zip
+
+# ── IDEs and Assistants ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.agents/
+.gemini/
+
+# ── Logs & Scratch ──────────────────────────────────────────────────────────
+*.log
+logs/
+scratch/
+plan.md
+facebook_ads_examples/
+
+# ── Large Binary Machine Learning Models ────────────────────────────────────
+piper_models/*.onnx
+
+# ── Templates ───────────────────────────────────────────────────────────────
+templates/

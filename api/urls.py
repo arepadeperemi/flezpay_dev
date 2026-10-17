@@ -1,0 +1,222 @@
+from django.urls import path, re_path
+from rest_framework_simplejwt.views import TokenBlacklistView, TokenRefreshView
+
+from api.onboarding import authenticate, social_views
+from api.user_data import data_views, reports, data_insert, data_update, validate, data_delete, support, payroll_actions
+from api.user_data.data_views import CountryNamesProxyView
+from api.user_data.privacy_settings import PrivacySettingsView, LoginActivityView
+from api.user_data.domain_views import DomainCheckView, DomainBuyView, DomainTransferView
+from api.user_data.two_factor_auth import (
+    TwoFactorAuthSetup, TwoFactorAuthVerify, TwoFactorAuthDisable,
+    TwoFactorAuthStatus, TwoFactorAuthVerifyLogin
+)
+from api.user_data.fcm_token import RegisterFCMToken, UnregisterFCMToken
+from api.scan_data import scan
+from api.external import external_api
+from api.transactions import wallets, transfer, withdraw, details, verify, pos_purchase
+from api.user_data.data_delete import DeleteAccount
+from api.webhook import views
+from api import ai_views, growth_views, ai_insights_views
+from api.views import LivechatAttachmentUpload
+from api.external.myaza_webhook import myaza_webhook_view
+from arc_payments import urls as arc_urls
+
+urlpatterns = [
+    path('api/webhooks/myaza', myaza_webhook_view, name='myaza_webhook'),
+    path('api/report/demo', reports.DemoRequestView.as_view()),
+
+    path('api/onboard/register', authenticate.UserRegister.as_view()),
+    path('api/onboard/password/reset-request', authenticate.PasswordResetRequest.as_view()),
+    path('api/onboard/password/reset-confirm', authenticate.PasswordResetConfirm.as_view()),
+    path('api/onboard/validate/number', authenticate.ValidateEmailPhone.as_view()),
+    path('api/onboard/validate/pin', authenticate.ValidatePin.as_view()),
+    path('api/onboard/login', authenticate.UserLogin.as_view()),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/user/settings/tutorial', data_update.UpdateTutorialStatusView.as_view()),
+    path('api/onboard/google/login', authenticate.GoogleLoginRedirect.as_view()),
+    path('api/onboard/google/callback', authenticate.GoogleAuthCallback.as_view()),
+    path('api/onboard/google', social_views.GoogleLogin.as_view(), name='google_login'),
+    path('api/onboard/waitlist', authenticate.ProspectWaitlist.as_view()),
+    path('api/user/data', data_views.UserData.as_view()),
+    path('api/user/data/ai', data_views.UserAIView.as_view()),
+    path('api/user/notifications/mark-read', data_update.MarkNotificationRead.as_view()),
+    path('api/user/report/inventory', reports.GenerateReportView.as_view()),
+
+    path('api/user/data/update/subscription', data_update.SubscriptionView.as_view()),
+    path('api/user/data/subscriptions', data_views.SubscriptionsPlansView.as_view()),
+    path('api/user/data/subscriptions/crud', data_insert.SubscriptionsPlans.as_view()),
+
+    path('api/user/data/add/items', data_insert.AddItems.as_view()),
+    path('api/user/add/payroll', data_insert.UserPayrollView.as_view()),
+    path('api/user/payroll/run', payroll_actions.RunPayrollView.as_view()),
+    path('api/user/payroll/list', data_views.UserPayrollListView.as_view()),
+    path('api/user/delete/payroll', data_delete.DeleteUserPayroll.as_view()),
+    path('api/user/data/add/withdrawalAccount', data_insert.AddWithdrawalAccount.as_view()),
+    path('api/user/data/delete/withdrawal', data_delete.DeleteWithdrawalAccount.as_view()),
+    path('api/user/update/secure', data_update.SecureUpdate.as_view()),
+    path('api/user/update/cartItem', data_update.CartItemUpdate.as_view()),
+    path('api/user/delete/cartItem', data_delete.DeleteCartItem.as_view()),
+    path('api/user/update/details', data_update.DetailsUpdate.as_view()),
+    path('api/auth/logout', TokenBlacklistView.as_view(), name='token_blacklist'),
+    path('api/scan/priceTag', scan.ScanPrice.as_view()),
+    path('api/scan/payment', scan.ScanPayment.as_view()),
+    path('api/scan/add/cartItem', data_insert.AddToCart.as_view()),
+    path('api/data/banks', external_api.BanksAPI.as_view()),
+    path('api/data/account/validate', external_api.ValidateAccount.as_view()),
+    path('api/delivery/states', external_api.KxpressStatesAPI.as_view()),
+    path('api/delivery/lgas', external_api.KxpressLgasAPI.as_view()),
+    path('api/delivery/calculate', external_api.KxpressCalculateAPI.as_view()),
+    path('api/delivery/track/<str:order_no>', external_api.KxpressTrackAPI.as_view()),
+    path('api/crypto/addAsset', data_insert.AddCryptoAsset.as_view()),
+    path('api/crypto/addAssetChain', data_insert.AddCryptoAssetChain.as_view()),
+    path('api/crypto/wallet', wallets.CryptoWallet.as_view()),
+    path('api/pos/buy-kit/', pos_purchase.POSBuyKit.as_view()),
+    path('api/user/verification', data_insert.UserVerificationView.as_view()),
+    path('api/user/verification/session', data_insert.UserVerificationSessionView.as_view()),
+    path('api/user/verification/complete-session', data_insert.UserVerificationSessionCompleteView.as_view()),
+    path('api/user/validateEmail', validate.ValidateEmail.as_view()),
+    path('api/user/validateEmail/update', validate.ValidateEmailPin.as_view()),
+    path('api/user/add/depositBank', data_insert.AddBankDepositDetails.as_view()),
+    path('api/user/data/add/department', data_insert.AddDepartment.as_view()),
+    path('api/user/data/add/category', data_insert.AddCategory.as_view()),
+    path('api/user/manager', data_insert.UserManagersView.as_view()),
+    path('api/user/manager/<int:id>', data_insert.UserManagersView.as_view()),
+    path('api/user/data/delete/department', data_delete.DeleteDepartment.as_view()),
+    path('api/user/data/delete/category', data_delete.DeleteCategory.as_view()),
+    path('api/user/transactions/transfer', transfer.Transfer.as_view()),
+    path('api/auth/trx/pin', verify.WithdrawPin.as_view()),
+    path('api/auth/payroll/pin', verify.PayrollPin.as_view()),
+    path('api/auth/delete/pin', verify.DeleteAccountPin.as_view()),
+    path('api/user/transactions/withdraw', withdraw.Withdraw.as_view()),
+    path('api/user/transactions/details', details.TransactionDetails.as_view()),
+    path('api/user/delete/account', DeleteAccount.as_view()),
+    path('api/user/privacy/settings', PrivacySettingsView.as_view()),
+    path('api/user/privacy/login-activity', LoginActivityView.as_view()),
+    path('api/user/2fa/setup', TwoFactorAuthSetup.as_view()),
+    path('api/user/2fa/verify', TwoFactorAuthVerify.as_view()),
+    path('api/user/2fa/disable', TwoFactorAuthDisable.as_view()),
+    path('api/user/2fa/status', TwoFactorAuthStatus.as_view()),
+    path('api/user/2fa/verify-login', TwoFactorAuthVerifyLogin.as_view()),
+    path('api/user/fcm/register', RegisterFCMToken.as_view()),
+    path('api/user/fcm/unregister', UnregisterFCMToken.as_view()),
+    path('api/user/data/update/item', data_update.ProductUpdate.as_view()),
+    path('api/user/data/update/prices', data_update.PriceAdjust.as_view()),
+    path('api/user/data/update/settings', data_insert.BusinessDetailsView.as_view()),
+    path('api/user/update/trxpin', data_update.AuthPinUpdate.as_view()),
+    path('api/support/faq/insert', support.AddFaq.as_view()),
+    path('api/support/details', support.AddSupport.as_view()),
+    path('api/user/auth/pin', authenticate.UserPinAuthenticate.as_view()),
+    path('api/user/auth/pin/manager', authenticate.ManagerPinAuthenticate.as_view()),
+    path('api/user/reset/pin', authenticate.ValidatePhone.as_view()),
+    path('api/user/reset/validatePhone', authenticate.ValidatePinReset.as_view()),
+    path('api/user/reset/update/trxpin', authenticate.ValidatePinUpdate.as_view()),
+    path('api/transactions/filter', data_views.FilteredTransactions.as_view()),
+    path('api/user/subscription_invoices', data_views.FetchSubscriptionInvoicesView.as_view()),
+    path('api/user/subscription_invoices/<str:invoice_id>/download', data_views.SubscriptionInvoiceDownloadView.as_view()),
+    path('api/invoices/filter', data_views.FilteredInvoices.as_view()),
+    path('api/staff/create', data_insert.StaffCreateView.as_view()),
+    path('api/staff/filter', data_views.FilteredStaff.as_view()),
+    path('api/staff/activity/<int:staff_id>', data_views.StaffActivityView.as_view()),
+    path('api/managers/filter', data_views.FilteredManagers.as_view()),
+    path('api/products/filter', data_views.FilteredProducts.as_view()),
+    path('api/departments/filter', data_views.FilteredDepartments.as_view()),
+    path('api/categories/filter', data_views.FilteredCategories.as_view()),
+    path('api/staff/detail/<int:staff_id>', data_views.StaffDetailView.as_view()),
+    path('api/user/products/delete', data_delete.DeleteProducts.as_view()),
+    path('api/response/webhook', views.Paystack_WEBHOOK.as_view()),
+    path('api/invoice/create', data_insert.CreateInvoice.as_view()),
+    path('api/details/verification', data_views.VerificationView.as_view()),
+    path('api/details/verify', data_update.VerifyUserView.as_view()),
+    path('api/verification/decline', data_update.DeclineVerificationView.as_view()),
+
+    path('api/user/chat', ai_views.AIChatView.as_view()),
+    path('api/user/subscription/renew', data_views.RenewSubscriptionView.as_view(), name='renew-subscription'),
+    path('api/user/store/setup', data_update.StoreSetupView.as_view()),
+    path('api/user/store/setup/', data_update.StoreSetupView.as_view()),
+    path('api/user/store-setup', data_update.StoreSetupView.as_view()),
+    path('api/user/store-setup/', data_update.StoreSetupView.as_view()),
+    path('api/user/store/items/sync', data_update.StoreItemsSyncView.as_view()),
+    path('api/user/store/checkout', data_update.ProcessStoreCheckoutView.as_view()),
+    path('api/user/store/verify_payment', data_update.VerifyStorePaymentView.as_view()),
+    path('api/store/product-stock/<str:item_id>', data_views.product_stock_view),
+    path('api/v1/user/submit-review/', data_update.SubmitReviewView.as_view(), name='submit_review'),
+    path('api/user/store/check-slug', data_views.CheckStoreSlugView.as_view()),
+    path('api/user/store/authors', data_views.StoreAuthorsView.as_view()),
+    path('api/user/store/authors/', data_views.StoreAuthorsView.as_view()),
+    path('api/user/store/social-gallery', data_views.StoreSocialGalleryView.as_view()),
+    path('api/user/store/social-gallery/', data_views.StoreSocialGalleryView.as_view()),
+    path('api/user/store-layouts/buy', data_views.store_layout_buy_api, name='store_layout_buy_api'),
+    path('api/user/store-layouts/buy/', data_views.store_layout_buy_api),
+    path('api/user/store-layouts/builder/save', data_views.store_builder_save_api, name='store_builder_save_api'),
+    path('api/user/store-layouts/builder/save/', data_views.store_builder_save_api),
+    path('api/user/store-layouts/builder/reset', data_views.store_builder_reset_api, name='store_builder_reset_api'),
+    path('api/user/store-layouts/builder/reset/', data_views.store_builder_reset_api),
+    path('api/user/store-layouts/builder/upload-video', data_views.store_builder_upload_video_api, name='store_builder_upload_video_api_no_slash'),
+    path('api/user/store-layouts/builder/upload-video/', data_views.store_builder_upload_video_api, name='store_builder_upload_video_api'),
+    
+
+    # Store Blog Management APIs
+    path('api/store-blog/articles', data_views.store_blog_articles_api, name='store_blog_articles_api_no_slash'),
+    path('api/store-blog/articles/', data_views.store_blog_articles_api, name='store_blog_articles_api'),
+    path('api/store-blog/articles/create', data_views.store_blog_article_create_api, name='store_blog_article_create_api_no_slash'),
+    path('api/store-blog/articles/create/', data_views.store_blog_article_create_api, name='store_blog_article_create_api'),
+    path('api/store-blog/articles/<int:post_id>', data_views.store_blog_article_detail_api, name='store_blog_article_detail_api_no_slash'),
+    path('api/store-blog/articles/<int:post_id>/', data_views.store_blog_article_detail_api, name='store_blog_article_detail_api'),
+    path('api/store-blog/categories', data_views.store_blog_categories_api, name='store_blog_categories_api_no_slash'),
+    path('api/store-blog/categories/', data_views.store_blog_categories_api, name='store_blog_categories_api'),
+    path('api/store-blog/categories/<int:category_id>', data_views.store_blog_category_detail_api, name='store_blog_category_detail_api_no_slash'),
+    path('api/store-blog/categories/<int:category_id>/', data_views.store_blog_category_detail_api, name='store_blog_category_detail_api'),
+    path('api/store-blog/categories/<int:category_id>/delete', data_views.store_blog_category_detail_api, name='store_blog_category_delete_api_no_slash'),
+    path('api/store-blog/categories/<int:category_id>/delete/', data_views.store_blog_category_detail_api, name='store_blog_category_delete_api'),
+    path('api/staff/update-status', data_update.StaffStatusUpdate.as_view()),
+    path('api/staff/update-details', data_update.StaffDetailsUpdate.as_view()),
+    path('api/staff/assign-collection', data_update.AssignCollectionAccount.as_view()),
+    path('api/staff/send-email', data_update.SendStaffEmail.as_view()),
+    path('api/staff/reset-password', data_update.ResetStaffPassword.as_view()),
+
+    path('api/user/data/update/department', data_update.DepartmentUpdate.as_view()),
+    path('api/user/data/update/category', data_update.CategoryUpdate.as_view()),
+    path('api/staff/delete', data_delete.DeleteStaffAccount.as_view()),
+    path('api/user/invoice/delete', data_delete.DeleteInvoice.as_view()),
+    
+    path('api/user/store/order/delivery-status', data_update.UpdateDeliveryStatusView.as_view()),
+    path('api/user/store/order/payment-status', data_update.UpdatePaymentStatusView.as_view()),
+    path('api/livechat/upload', LivechatAttachmentUpload.as_view()),
+    path('api/domain/check', DomainCheckView.as_view()),
+    path('api/domain/buy', DomainBuyView.as_view()),
+    path('api/domain/transfer', DomainTransferView.as_view()),
+    
+    # Growth API
+    path('api/growth/overview', growth_views.GrowthOverviewAPI.as_view()),
+    path('api/growth/reports', growth_views.GrowthReportsAPI.as_view()),
+    path('api/growth/estimate-reach', growth_views.GrowthEstimateReachAPI.as_view()),
+    path('api/growth/promotions', growth_views.GrowthPromotionsAPI.as_view()),
+    path('api/growth/promotions/sync', growth_views.GrowthPromotionsSyncAPI.as_view()),
+    path('api/growth/promotions/batch-delete', growth_views.GrowthPromotionsBatchDeleteAPI.as_view()),
+    path('api/growth/promotions/<uuid:id>', growth_views.GrowthPromotionDetailAPI.as_view()),
+    path('api/growth/promotions/<uuid:promo_id>/revert', growth_views.GrowthCampaignRevertAPI.as_view()),
+    path('api/growth/generate-campaign', growth_views.GrowthGenerateCampaignAPI.as_view()),
+    path('api/growth/generate-image', growth_views.GrowthGenerateImageAPI.as_view()),
+    path('api/growth/generate-video', growth_views.GrowthGenerateVideoAPI.as_view()),
+    path('api/growth/upload-media', growth_views.GrowthUploadMediaAPI.as_view()),
+    path('api/growth/ai-creator/generate', growth_views.GrowthAIGeneratorAPI.as_view()),
+    path('api/growth/ai-creator/status/<str:task_id>', growth_views.GrowthAIGeneratorStatusAPI.as_view()),
+    path('api/growth/meta/connect', growth_views.GrowthMetaConnectAPI.as_view()),
+    path('api/growth/meta/callback', growth_views.GrowthMetaCallbackAPI.as_view()),
+    path('api/growth/meta/pages', growth_views.GrowthMetaPagesAPI.as_view()),
+    path('api/growth/meta/page', growth_views.GrowthMetaSelectPageAPI.as_view()),
+    path('api/growth/meta/revoke', growth_views.GrowthMetaRevokeAPI.as_view()),
+    # AI Insights (Smart AI Insights tab on Business Analytics)
+    path('api/business/ai-insights/', ai_insights_views.AIInsightsView.as_view()),
+    path('api/business/ai-insights/status/<str:task_id>/', ai_insights_views.AIInsightsStatusView.as_view()),
+    path('api/business/ai-insights/status/<str:task_id>', ai_insights_views.AIInsightsStatusView.as_view()),
+    path('api/business/ai-insights/ask/', ai_insights_views.AIInsightsAskView.as_view()),
+
+    # Server-side proxy: avoids CORS block when fetching country names
+    path('api/proxy/country-names', CountryNamesProxyView.as_view()),
+]
+
+# Arc USDC payment endpoints
+urlpatterns += arc_urls.urlpatterns
+
+handler404 = 'api.views.custom_page_not_found'
